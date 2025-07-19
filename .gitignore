@@ -1,2 +1,4 @@
 .venv
 .env
+guide.txt
+__pycache__
