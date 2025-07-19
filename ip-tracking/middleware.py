@@ -1,15 +1,20 @@
-from django.http import HttpResponseForbidden
-from .models import BlockedIP, RequestLog
+from ipgeolocation import IpGeolocationAPI
+from django.core.cache import cache
 
-class RequestLoggingMiddleware:
-    ...
-    def __call__(self, request):
-        ip = self.get_ip(request)
+geo_api = IpGeolocationAPI("YOUR_API_KEY")
 
-        # Block IP if blacklisted
-        if BlockedIP.objects.filter(ip_address=ip).exists():
-            return HttpResponseForbidden("Access denied")
+def get_geo(ip):
+    cached = cache.get(f"geo:{ip}")
+    if cached:
+        return cached
 
-        # Log the request
-        RequestLog.objects.create(ip_address=ip, path=request.path)
-        return self.get_response(request)
+    try:
+        data = geo_api.get_geolocation_data(ip)
+        result = {
+            'country': data.get('country_name'),
+            'city': data.get('city'),
+        }
+        cache.set(f"geo:{ip}", result, timeout=86400)
+        return result
+    except Exception:
+        return {'country': None, 'city': None}
