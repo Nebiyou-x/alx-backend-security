@@ -1,5 +1,0 @@
-macbook@macbooks-MacBook-Air alx-backend-security % django-admin startproject ip_tracking  
-macbook@macbooks-MacBook-Air alx-backend-security % cd ip_tracking
-
-python3 manage.py runserver
-python3 manage.py startapp ip_Tracking
